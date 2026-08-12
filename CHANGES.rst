@@ -1,7 +1,7 @@
 Release notes
 =============
 
-2.9.0 (unreleased)
+2.9.0 (2026-08-12)
 ------------------
 
 - use a separate endpoint for the JobQ API when the ``SHUB_JOBQ`` environment
