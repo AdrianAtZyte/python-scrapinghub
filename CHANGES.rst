@@ -1,8 +1,18 @@
 Release notes
 =============
 
+2.9.0 (unreleased)
+------------------
+
+- use a separate endpoint for the JobQ API when the ``SHUB_JOBQ`` environment
+  variable or the new ``jobq_endpoint`` argument of
+  :class:`~scrapinghub.hubstorage.HubstorageClient` is set
+- reorganize the documentation, splitting the quickstart page into separate
+  installation and basic usage pages, and moving the overview and API
+  reference pages to new URLs, with redirects from the old ones
+
 2.8.0 (2026-07-14)
--------------------
+------------------
 
 - accept ``SHUB_APIKEY`` as an alias for the ``SH_APIKEY`` environment variable
 - load the ``SH_APIKEY`` (or ``SHUB_APIKEY``) and ``SHUB_JOBAUTH`` environment
@@ -12,7 +22,7 @@ Release notes
   default ``.env``
 
 2.7.0 (2026-04-07)
--------------------
+------------------
 
 - drop official support for Python 3.9; require Python 3.10+
 - make the documentation more LLM-friendly, with markdown versions of every
