@@ -2,16 +2,23 @@
 Test Project
 """
 import time
+from typing import Any
 import pytest
 from six.moves import range
 from collections import defaultdict
 
 from scrapinghub.hubstorage import ValueTooLarge
+from scrapinghub.hubstorage import HubstorageClient
+from scrapinghub.hubstorage.batchuploader import _BatchWriter
+from scrapinghub.hubstorage.job import Job
+from scrapinghub.hubstorage.project import Project
 from ..conftest import TEST_SPIDER_NAME, TEST_AUTH
 from .conftest import start_job
 
 
-def _job_and_writer(hsclient, hsproject, **writerargs):
+def _job_and_writer(
+    hsclient: HubstorageClient, hsproject: Project, **writerargs: Any,
+) -> tuple[Job, _BatchWriter]:
     hsproject.push_job(TEST_SPIDER_NAME)
     job = start_job(hsproject)
     batch_uploader = hsclient.batchuploader
@@ -20,7 +27,9 @@ def _job_and_writer(hsclient, hsproject, **writerargs):
     return job, writer
 
 
-def test_writer_batchsize(hsclient, hsproject, json_and_msgpack):
+def test_writer_batchsize(
+    hsclient: HubstorageClient, hsproject: Project, json_and_msgpack: str,
+) -> None:
     job, writer = _job_and_writer(hsclient, hsproject, size=10)
     for x in range(111):
         writer.write({'x': x})
@@ -28,14 +37,16 @@ def test_writer_batchsize(hsclient, hsproject, json_and_msgpack):
     # this works only for small batches (previous size=10 and small data)
     # as internally HS may commit a single large request as many smaller
     # commits, each with different timestamps
-    groups = defaultdict(int)
+    groups: defaultdict[Any, int] = defaultdict(int)
     for doc in job.items.list(meta=['_ts']):
         groups[doc['_ts']] += 1
 
     assert len(groups) == 12
 
 
-def test_writer_maxitemsize(hsclient, hsproject):
+def test_writer_maxitemsize(
+    hsclient: HubstorageClient, hsproject: Project,
+) -> None:
     _, writer = _job_and_writer(hsclient, hsproject)
     max_size = writer.maxitemsize
     with pytest.raises(ValueTooLarge) as excinfo1:
@@ -57,7 +68,9 @@ def test_writer_maxitemsize(hsclient, hsproject):
         ' \'{"b+\\.\\.\\.\'')
 
 
-def test_writer_maxitemsize_custom(hsclient, hsproject):
+def test_writer_maxitemsize_custom(
+    hsclient: HubstorageClient, hsproject: Project,
+) -> None:
     _, writer = _job_and_writer(hsclient, hsproject, maxitemsize=512*1024)
     with pytest.raises(ValueTooLarge) as excinfo:
         writer.write({'b': 'x' * writer.maxitemsize})
@@ -66,7 +79,9 @@ def test_writer_maxitemsize_custom(hsclient, hsproject):
         ' \'{"b": "x+\\.\\.\\.\'')
 
 
-def test_writer_contentencoding(hsclient, hsproject):
+def test_writer_contentencoding(
+    hsclient: HubstorageClient, hsproject: Project,
+) -> None:
     for ce in ('identity', 'gzip'):
         job, writer = _job_and_writer(hsclient, hsproject,
                                       content_encoding=ce)
@@ -76,7 +91,9 @@ def test_writer_contentencoding(hsclient, hsproject):
         assert job.items.stats()['totals']['input_values'] == 111
 
 
-def test_writer_interval(hsclient, hsproject, json_and_msgpack):
+def test_writer_interval(
+    hsclient: HubstorageClient, hsproject: Project, json_and_msgpack: str,
+) -> None:
     job, writer = _job_and_writer(hsclient, hsproject,
                                   size=1000, interval=1)
     for x in range(111):
@@ -85,7 +102,7 @@ def test_writer_interval(hsclient, hsproject, json_and_msgpack):
             time.sleep(2)
 
     writer.close()
-    groups = defaultdict(int)
+    groups: defaultdict[Any, int] = defaultdict(int)
     for doc in job.items.list(meta=['_ts']):
         groups[doc['_ts']] += 1
 
