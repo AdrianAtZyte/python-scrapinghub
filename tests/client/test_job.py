@@ -50,11 +50,17 @@ def test_job_update_tags(spider):
 
 
 @pytest.mark.parametrize('failures,raises', [(3, False), (4, True)])
+@pytest.mark.parametrize('update_tags', [
+    lambda client: client.get_job(
+        '{}/1/1'.format(TEST_PROJECT_ID)).update_tags(add=['tag']),
+    lambda client: client.get_project(TEST_PROJECT_ID).jobs.update_tags(
+        add=['tag'], spider=TEST_SPIDER_NAME),
+])
 @patch.multiple('scrapinghub.HubstorageClient',
                 RETRY_DEFAULT_JITTER_MS=1,
                 RETRY_DEFAULT_EXPONENTIAL_BACKOFF_MS=1)
 @responses.activate
-def test_job_update_tags_retry(failures, raises):
+def test_job_update_tags_retry(update_tags, failures, raises):
     client = ScrapinghubClient(auth=TEST_ADMIN_AUTH,
                                dash_endpoint=TEST_DASH_ENDPOINT,
                                max_retries=3)
@@ -62,12 +68,11 @@ def test_job_update_tags_retry(failures, raises):
     for _ in range(failures):
         responses.add(responses.POST, url, status=500)
     responses.add(responses.POST, url, json={'status': 'ok', 'count': 1})
-    job = client.get_job('{}/1/1'.format(TEST_PROJECT_ID))
     if raises:
         with pytest.raises(ServerError):
-            job.update_tags(add=['tag'])
+            update_tags(client)
     else:
-        job.update_tags(add=['tag'])
+        update_tags(client)
     assert len(responses.calls) == 4
 
 
