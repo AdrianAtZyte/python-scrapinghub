@@ -75,6 +75,11 @@ class Collections(DownloadableResource):
             self, (_type, _name), requests_params=requests_params, **apiparams
         )
 
+    def _iter_msgpack_values(self, _type, _name, requests_params=None, **apiparams):
+        return DownloadableResource._iter_msgpack_values(
+            self, (_type, _name), requests_params=requests_params, **apiparams
+        )
+
     def create_writer(self, coltype, colname, **writer_kwargs):
         self._validate_collection(coltype, colname)
         kwargs = dict(writer_kwargs)
