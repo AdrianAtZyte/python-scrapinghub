@@ -22,14 +22,15 @@ def _serve(params):
     return ITEMS[start:None if count is None else start + int(count)]
 
 
-def _flaky_server(serialize):
+def _flaky_server(serialize, calls=None, full_first=False):
     """Return a replacement for a raw iteration method whose first response
-    breaks halfway through."""
-    calls = []
+    breaks halfway through, or right after its last chunk if *full_first* is
+    true."""
+    calls = [] if calls is None else calls
 
     def iter_raw(_path, params=None, **kwargs):
         chunks = serialize(_serve(params))
-        if not calls:
+        if not calls and not full_first:
             chunks = chunks[:len(chunks) // 2]
         calls.append(dict(params))
         for chunk in chunks:
@@ -78,3 +79,13 @@ def test_iter_msgpack_resumes():
     resource.RETRY_INTERVAL = 0
     resource._iter_content = _flaky_server(_msgpack_chunks)
     assert list(mpdecode(resource.iter_msgpack())) == ITEMS
+
+
+def test_iter_values_stops_after_count():
+    client = HubstorageClient(auth='apikey', use_msgpack=False)
+    resource = Items(client, '1/2/3')
+    resource.RETRY_INTERVAL = 0
+    calls = []
+    resource._iter_lines = _flaky_server(_json_lines, calls, full_first=True)
+    assert list(resource.iter_values(count=5)) == ITEMS[:5]
+    assert len(calls) == 1
