@@ -6,7 +6,9 @@ from contextlib import closing
 from collections.abc import Callable
 from typing import Any
 
+import mock
 import pytest
+from requests import HTTPError, Response
 from scrapinghub import HubstorageClient
 from scrapinghub.hubstorage.collectionsrt import Collection
 from scrapinghub.hubstorage.project import Project
@@ -181,3 +183,21 @@ def test_truncate(hscollection: Collection) -> None:
 
     hscollection.truncate()
     assert len(list(hscollection.iter_values(prefix='my_key'))) == 0
+
+
+@pytest.mark.parametrize('status_code,expected_exception', [
+    (400, ValueError),
+    (500, HTTPError),
+])
+def test_count_http_error(
+    hscollection: Collection, status_code: int,
+    expected_exception: type[Exception],
+) -> None:
+    response = Response()
+    response.status_code = status_code
+    response._content = b'error'
+    collections = hscollection._collections
+    with mock.patch.object(collections, 'apirequest',
+                           side_effect=HTTPError(response=response)):
+        with pytest.raises(expected_exception):
+            hscollection.count()

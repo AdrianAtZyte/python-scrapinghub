@@ -3,6 +3,7 @@ Test Project
 """
 import time
 from typing import Any
+import mock
 import pytest
 from six.moves import range
 from collections import defaultdict
@@ -107,3 +108,10 @@ def test_writer_interval(
         groups[doc['_ts']] += 1
 
     assert len(groups) == 2
+
+
+def test_tryupload_non_retryable_failure(hsclient: HubstorageClient) -> None:
+    batch_uploader = hsclient.batchuploader
+    with mock.patch.object(batch_uploader, '_upload',
+                           side_effect=RuntimeError):
+        assert batch_uploader._tryupload({'url': 'url', 'offset': 0}) is None

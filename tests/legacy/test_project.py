@@ -40,6 +40,12 @@ def test_project_job(project: Project) -> None:
         ((), {'job': '1/2/3', 'count': 1})]
 
 
+def test_project_job_not_found(project: Project) -> None:
+    project.jobs = mock.Mock()  # type: ignore[method-assign]
+    project.jobs.return_value = iter([])
+    assert project.job('1/2/3') is None
+
+
 def test_project_spiders(project: Project) -> None:
     project._get = mock.Mock()  # type: ignore[method-assign]
     project._get.return_value = {'spiders': ['spiderA']}
