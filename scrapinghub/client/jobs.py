@@ -53,10 +53,10 @@ class Jobs(object):
             or a list of strings.
         :param lacks_tag: (optional) filter results by missing tag(s), a string
             or a list of strings.
-        :param startts: (optional) UNIX timestamp at which to begin results,
-            in milliseconds.
-        :param endts: (optional) UNIX timestamp at which to end results,
-            in milliseconds.
+        :param startts: (optional) only match jobs last updated (``ts``) at
+            or after this UNIX timestamp, in milliseconds.
+        :param endts: (optional) only match jobs last updated (``ts``) before
+            this UNIX timestamp, in milliseconds.
         :param params: (optional) other filter params.
 
         :return: jobs count.
@@ -150,10 +150,10 @@ class Jobs(object):
             or a list of strings.
         :param lacks_tag: (optional) filter results by missing tag(s), a string
             or a list of strings.
-        :param startts: (optional) UNIX timestamp at which to begin results,
-            in millisecons.
-        :param endts: (optional) UNIX timestamp at which to end results,
-            in millisecons.
+        :param startts: (optional) only match jobs last updated (``ts``) at
+            or after this UNIX timestamp, in milliseconds.
+        :param endts: (optional) only match jobs last updated (``ts``) before
+            this UNIX timestamp, in milliseconds.
         :param meta: (optional) request for additional fields, a single
             field name or a list of field names to return.
         :param params: (optional) other filter params.
@@ -221,10 +221,10 @@ class Jobs(object):
             or a list of strings.
         :param lacks_tag: (optional) filter results by missing tag(s), a string
             or a list of strings.
-        :param startts: (optional) UNIX timestamp at which to begin results,
-            in milliseconds.
-        :param endts: (optional) UNIX timestamp at which to end results,
-            in milliseconds.
+        :param startts: (optional) only match jobs last updated (``ts``) at
+            or after this UNIX timestamp, in milliseconds.
+        :param endts: (optional) only match jobs last updated (``ts``) before
+            this UNIX timestamp, in milliseconds.
         :param meta: (optional) request for additional fields, a single
             field name or a list of field names to return.
         :param params: (optional) other filter params.
