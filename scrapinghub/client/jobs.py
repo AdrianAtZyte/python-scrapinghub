@@ -357,12 +357,15 @@ class Jobs(object):
                   spider=None, **params):
         """Iterate through last jobs for each spider.
 
-        :param start: (optional)
-        :param start_after: (optional)
-        :param count: (optional)
-        :param spider: (optional) a spider name (not needed if instantiated
-            with :class:`~scrapinghub.client.spiders.Spider`).
-        :param params: (optional) additional keyword args.
+        Spiders are iterated in key order, where a spider key is
+        ``'<project_id>/<spider_id>'``. *start* is the key of the first spider
+        to include, *start_after* the key of the spider after which to start,
+        and *count* the maximum number of spiders to return.
+
+        *spider* is a spider name, not needed if instantiated with
+        :class:`~scrapinghub.client.spiders.Spider`. *params* are additional
+        keyword arguments.
+
         :return: a generator object over a list of dictionaries of jobs summary
             for a given filter params.
         :rtype: :class:`types.GeneratorType[dict]`
