@@ -143,7 +143,7 @@ class Jobs(object):
         """Iterate over jobs collection for a given set of params.
 
         :param count: (optional) limit amount of returned jobs.
-        :param start: (optional) number of jobs to skip in the beginning.
+        :param start: (optional) number of matching jobs to skip.
         :param spider: (optional) filter by spider name.
         :param state: (optional) a job state, a string or a list of strings.
         :param has_tag: (optional) filter results by existing tag(s), a string
@@ -214,7 +214,7 @@ class Jobs(object):
         """Convenient shortcut to list iter results.
 
         :param count: (optional) limit amount of returned jobs.
-        :param start: (optional) number of jobs to skip in the beginning.
+        :param start: (optional) number of matching jobs to skip.
         :param spider: (optional) filter by spider name.
         :param state: (optional) a job state, a string or a list of strings.
         :param has_tag: (optional) filter results by existing tag(s), a string
