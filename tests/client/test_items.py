@@ -108,7 +108,11 @@ def test_items_list_iter_with_start_and_count_2(spider, json_and_msgpack):
         next(o)
 
 
-def test_items_list_iter_with_skipped_items():
+@pytest.mark.parametrize('meta, keep_key', [
+    ({}, False),
+    ({'meta': '_key'}, True),
+])
+def test_items_list_iter_with_skipped_items(meta, keep_key):
     """Items skipped by the server, e.g. due to a filter, must not cause
     list_iter to return the same items more than once."""
     matching = [2, 5, 6, 9]
@@ -119,9 +123,14 @@ def test_items_list_iter_with_skipped_items():
         for index in [i for i in matching if i >= offset][:count]:
             yield {'_key': '1/2/3/{}'.format(index), 'id': index}
 
+    def item(index):
+        if keep_key:
+            return {'_key': '1/2/3/{}'.format(index), 'id': index}
+        return {'id': index}
+
     items = Items.__new__(Items)
     items.key = '1/2/3'
     with mock.patch.object(Items, 'iter', side_effect=iter_):
-        assert list(items.list_iter(chunksize=1)) == [
-            [{'id': 2}], [{'id': 5}], [{'id': 6}], [{'id': 9}], [],
-        ]
+        assert list(items.list_iter(chunksize=1, **meta)) == [
+            [item(i)] for i in matching
+        ] + [[]]
