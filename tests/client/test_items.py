@@ -1,5 +1,8 @@
+import mock
 import pytest
 from six.moves import range
+
+from scrapinghub.client.items import Items
 
 from .utils import normalize_job_for_tests
 
@@ -103,3 +106,22 @@ def test_items_list_iter_with_start_and_count_2(spider, json_and_msgpack):
     ]
     with pytest.raises(StopIteration):
         next(o)
+
+
+def test_items_list_iter_with_skipped_items():
+    """Items skipped by the server, e.g. due to a filter, must not cause
+    list_iter to return the same items more than once."""
+    matching = [2, 5, 6, 9]
+
+    def iter_(count, start, meta):
+        assert '_key' in meta
+        offset = int(start.rsplit('/', 1)[1])
+        for index in [i for i in matching if i >= offset][:count]:
+            yield {'_key': '1/2/3/{}'.format(index), 'id': index}
+
+    items = Items.__new__(Items)
+    items.key = '1/2/3'
+    with mock.patch.object(Items, 'iter', side_effect=iter_):
+        assert list(items.list_iter(chunksize=1)) == [
+            [{'id': 2}], [{'id': 5}], [{'id': 6}], [{'id': 9}], [],
+        ]
