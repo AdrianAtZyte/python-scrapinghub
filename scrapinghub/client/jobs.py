@@ -355,7 +355,7 @@ class Jobs(object):
 
     def iter_last(self, start=None, start_after=None, count=None,
                   spider=None, **params):
-        """Iterate through last jobs for each spider.
+        """Iterate over the most recent job of each spider.
 
         Spiders are iterated in key order, where a spider key is
         ``'<project_id>/<spider_id>'``. *start* is the key of the first spider
